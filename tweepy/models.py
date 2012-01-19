@@ -62,6 +62,8 @@ class Status(Model):
                     setattr(status, 'source_url', None)
             elif k == 'retweeted_status':
                 setattr(status, k, Status.parse(api, v))
+            elif k == 'entities':
+                setattr(status, k, Entities.parse(api, v))
             else:
                 setattr(status, k, v)
         return status
@@ -140,7 +142,61 @@ class User(Model):
     def followers_ids(self, *args, **kargs):
         return self._api.followers_ids(user_id=self.id, *args, **kargs)
 
+class Entities(Model):
+    
+    @classmethod
+    def parse(cls, api, json):
+        entities = cls(api)
+        for k, v in json.items():
+            if k == 'media':
+                setattr(entities, k, Media.parse_list(api, v))
+            elif k == 'urls':
+                setattr(entities, k, Url.parse_list(api, v))
+            elif k == 'hashtags':
+                setattr(entities, k, HashTag.parse_list(api, v))
+            else:
+                setattr(entities, k, v)
+        return entities
+    
+class Media(Model):
+    
+    @classmethod
+    def parse(cls, api, json):
+        media = cls(api)
+        for k, v in json.items():
+            if k == 'sizes':
+                setattr(media, k, MediaSize.parse_list(api, v))
+            else:
+                setattr(media, k, v)
+        return media
+    
+class MediaSize(Model):
+    
+    @classmethod
+    def parse(cls, api, json):
+        media_size = cls(api)
+        for k, v in json.items():
+            setattr(media_size, k, v)
+        return media_size
 
+class Url(Model):
+    
+    @classmethod
+    def parse(cls, api, json):
+        url= cls(api)
+        for k, v in json.items():
+            setattr(url, k, v)
+        return url
+
+class HashTag(Model):
+    
+    @classmethod
+    def parse(cls, api, json):
+        ht = cls(api)
+        for k, v in json.items():
+            setattr(ht, k, v)
+        return ht
+    
 class DirectMessage(Model):
 
     @classmethod
@@ -323,7 +379,9 @@ class ModelFactory(object):
     search_result = SearchResult
     list = List
     relation = Relation
-
+    hashtag = HashTag
+    media = Media
+    media_size = MediaSize
     json = JSONModel
     ids = IDModel
 
