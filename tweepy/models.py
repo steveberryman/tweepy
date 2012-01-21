@@ -163,12 +163,15 @@ class Media(Model):
     @classmethod
     def parse(cls, api, json):
         media = cls(api)
-        for k, v in json.items():
-            if k == 'sizes':
-                setattr(media, k, MediaSize.parse_list(api, v))
-            else:
-                setattr(media, k, v)
-        return media
+        try:
+            for k, v in json.items():
+                if k == 'sizes':
+                    setattr(media, k, MediaSize.parse_list(api, v))
+                else:
+                    setattr(media, k, v)        
+            return media
+        except:
+            return None
     
 class MediaSize(Model):
     
